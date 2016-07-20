@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">ChooseAndPerish</string>
+    <string name="vanity_url_edit">Enter your vanity url</string>
+    <string name="button_send">Send</string>
 </resources>

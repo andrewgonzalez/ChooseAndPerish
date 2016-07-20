@@ -34,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
                             object = (JSONObject) new JSONTokener(steamResponse).nextValue();
                             String gameCount = object.getString("game_count");
                             JSONArray gamesArray = object.getJSONArray("games");
+                            JSONObject game = gamesArray.getJSONObject(0);
+                            int appid = game.getInt("appid");
                             textDisplay.setText(gameCount);
                         } catch (JSONException e) {
                             e.printStackTrace();

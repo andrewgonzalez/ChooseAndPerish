@@ -9,9 +9,21 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="lab.oss.andrew.chooseandperish.MainActivity">
 
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/vanityUrlEdit"
+        android:hint="@string/vanity_url_edit" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/vanityUrlEdit"
+        android:text="@string/button_send" />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/txtDisplay"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         android:text="Hello World!" />
 </RelativeLayout>

@@ -12,13 +12,15 @@
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:id="@+id/vanityUrlEdit"
         android:hint="@string/vanity_url_edit" />
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/vanityUrlEdit"
-        android:text="@string/button_send" />
+        android:text="@string/button_send"
+        android:onClick="resolveUrl" />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -2,16 +2,18 @@ package lab.oss.andrew.chooseandperish;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,10 +22,29 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+    }
+
+    public void resolveUrl(View view) {
         final TextView textDisplay = (TextView) findViewById(R.id.txtDisplay);
-        String url = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=2E2F2BEA53C917775B3AEA7548391CC3&steamid=76561197992593866&include_appinfo=1&format=json";
+        EditText urlEdit = (EditText) findViewById(R.id.vanityUrlEdit);
+        String vanity = urlEdit.getText().toString();
+        String url = "https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/"
+                + "?key=2E2F2BEA53C917775B3AEA7548391CC3"
+                + "&vanityurl=" + vanity
+                + "&url_type=1";
 
+        getSteamResponse(url, new VolleyCallback() {
+            @Override
+            public void onSuccess(JSONObject result) {
+                String steamid = result.optString("steamid");
+                textDisplay.setText(steamid);
+            }
+        });
+    }
 
+    /*public void getOwnedGames() {
+        final TextView textDisplay = (TextView) findViewById(R.id.txtDisplay);
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                     @Override
@@ -49,5 +70,33 @@ public class MainActivity extends AppCompatActivity {
                 });
 
         RequestSingleton.getInstance(this).addToRequestQueue(jsObjRequest);
+    }*/
+
+    private void getSteamResponse(String url, final VolleyCallback callback) {
+
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            JSONObject object = response.getJSONObject("response");
+                            callback.onSuccess(object);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // Do something
+                    }
+                });
+        RequestSingleton.getInstance(this).addToRequestQueue(jsObjRequest);
+
     }
+
+    public interface VolleyCallback {
+        void onSuccess(JSONObject result);
+    }
+
 }

@@ -12,13 +12,30 @@
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:id="@+id/vanityUrlEdit"
+        android:id="@+id/playerOne"
+        android:hint="@string/vanity_url_edit" />
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/playerTwo"
+        android:layout_below="@id/playerOne"
+        android:hint="@string/vanity_url_edit" />
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/playerThree"
+        android:layout_below="@id/playerTwo"
+        android:hint="@string/vanity_url_edit" />
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/playerFour"
+        android:layout_below="@id/playerThree"
         android:hint="@string/vanity_url_edit" />
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/vanityUrlEdit"
+        android:layout_below="@id/playerFour"
         android:text="@string/button_send"
         android:onClick="resolveUrl" />
     <TextView

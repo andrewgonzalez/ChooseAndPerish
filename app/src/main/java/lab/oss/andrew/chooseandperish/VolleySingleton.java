@@ -8,20 +8,20 @@ import com.android.volley.toolbox.Volley;
 /**
  * Created by andreg2 on 7/19/16.
  */
-public class RequestSingleton {
-    private static RequestSingleton ourInstance;
+public class VolleySingleton {
+    private static VolleySingleton ourInstance;
     private RequestQueue mRequestQueue;
     private static Context rqCtx;
 
-    private RequestSingleton(Context context) {
+    private VolleySingleton(Context context) {
         rqCtx = context;
         mRequestQueue = getRequestQueue();
 
     }
 
-    public static synchronized RequestSingleton getInstance(Context context) {
+    public static synchronized VolleySingleton getInstance(Context context) {
         if (ourInstance == null) {
-            ourInstance = new RequestSingleton(context);
+            ourInstance = new VolleySingleton(context);
         }
         return ourInstance;
     }

@@ -1,5 +1,7 @@
 package lab.oss.andrew.chooseandperish;
 
+import android.content.Context;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -9,13 +11,20 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import org.json.JSONArray;
+import com.android.volley.toolbox.RequestFuture;
+
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
+
+import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 
 public class MainActivity extends AppCompatActivity {
+
+    private JSONObject jsonResponse = new JSONObject();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,8 +34,13 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void startWork(View view) {
+        ArrayList<String> playerUrls = new ArrayList<String>();
+        EditText urlEdit = (EditText) findViewById(R.id.playerOne);
+
+    }
+
     public void resolveUrl(View view) {
-        final TextView textDisplay = (TextView) findViewById(R.id.txtDisplay);
         EditText urlEdit = (EditText) findViewById(R.id.vanityUrlEdit);
         String vanity = urlEdit.getText().toString();
         String url = "https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/"
@@ -34,17 +48,19 @@ public class MainActivity extends AppCompatActivity {
                 + "&vanityurl=" + vanity
                 + "&url_type=1";
 
-        getSteamResponse(url, new VolleyCallback() {
+        /*getSteamResponse(url, new VolleyCallback() {
             @Override
             public void onSuccess(JSONObject result) {
-                String steamid = result.optString("steamid");
-                textDisplay.setText(steamid);
+                String steamID = result.optString("steamid");
+                mTextDisplay.setText(steamID);
             }
-        });
+        });*/
+        new getResponseTask().execute(url);
+
     }
 
     /*public void getOwnedGames() {
-        final TextView textDisplay = (TextView) findViewById(R.id.txtDisplay);
+        final TextView mTextDisplay = (TextView) findViewById(R.id.txtDisplay);
         JsonObjectRequest jsObjRequest = new JsonObjectRequest
                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                     @Override
@@ -57,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
                             JSONArray gamesArray = object.getJSONArray("games");
                             JSONObject game = gamesArray.getJSONObject(0);
                             int appid = game.getInt("appid");
-                            textDisplay.setText(gameCount);
+                            mTextDisplay.setText(gameCount);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -69,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-        RequestSingleton.getInstance(this).addToRequestQueue(jsObjRequest);
+        VolleySingleton.getInstance(this).addToRequestQueue(jsObjRequest);
     }*/
 
     private void getSteamResponse(String url, final VolleyCallback callback) {
@@ -91,12 +107,46 @@ public class MainActivity extends AppCompatActivity {
                         // Do something
                     }
                 });
-        RequestSingleton.getInstance(this).addToRequestQueue(jsObjRequest);
+        VolleySingleton.getInstance(this).addToRequestQueue(jsObjRequest);
 
+    }
+
+    private void setJsonResponse(JSONObject object) {
+        this.jsonResponse = object;
     }
 
     public interface VolleyCallback {
         void onSuccess(JSONObject result);
+    }
+
+    private class getResponseTask extends AsyncTask<String, Integer, JSONObject> {
+        Context context = MainActivity.this;
+        final TextView mTextDisplay = (TextView) findViewById(R.id.txtDisplay);
+
+        protected JSONObject doInBackground(String... urls) {
+            RequestFuture<JSONObject> future = RequestFuture.newFuture();
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, urls[0], null, future, future);
+            VolleySingleton.getInstance(context).addToRequestQueue(request);
+            JSONObject response = new JSONObject();
+
+            try {
+                response = future.get(10, TimeUnit.SECONDS);
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (TimeoutException e) {
+                e.printStackTrace();
+            }
+
+            return response.optJSONObject("response");
+        }
+
+        protected void onPostExecute(JSONObject result) {
+            String steamID = result.optString("steamid");
+            mTextDisplay.setText(steamID);
+        }
     }
 
 }

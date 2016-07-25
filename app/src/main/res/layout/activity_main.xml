@@ -38,7 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/playerFour"
         android:text="@string/button_send"
-        android:onClick="resolveUrl" />
+        android:onClick="startWork" />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

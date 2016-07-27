@@ -15,26 +15,32 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 
 public class MainActivity extends AppCompatActivity {
 
-    private JSONObject mJsonResponse = new JSONObject();
-    private JSONArray mJsonArray = new JSONArray();
-    private int playerCount = 0;
+    private final int INITIAL_CAPACITY = 200;
+    private Map<String, Integer> mGameMap;
+    private int mMapDone;
+    private int mPlayerCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mGameMap = new HashMap<String, Integer>(INITIAL_CAPACITY);
 
     }
 
     public void startWork(View view) {
-        playerCount = 0;
-        ArrayList<String> playerUrls = new ArrayList<String>();
+        mGameMap.clear();
+        mPlayerCount = 0;
+        mMapDone = 0;
+
         RelativeLayout layout = (RelativeLayout) findViewById(R.id.mainLayout);
         EditText urlEdit;
 
@@ -43,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
             if (v instanceof EditText) {
                 urlEdit = (EditText) v;
                 if (!urlEdit.getText().toString().trim().equals("")) {
-                    playerCount++;
+                    mPlayerCount++;
                     resolveUrl(urlEdit.getText().toString());
                 }
             }
@@ -84,8 +90,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSuccess(JSONObject result) {
                 //mJsonArray = result.optJSONArray("games");
-                if (playerCount > 1) {
+                if (mPlayerCount > 1) {
                     // call method to map all players' games to a HashMap
+                    mapGames(result.optJSONArray("games"));
                 } else {
                     // there is only 1 player, just choose a random game
                     randomGame(result.optJSONArray("games"));
@@ -98,6 +105,41 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    public void mapGames(JSONArray games) {
+        // For each entry in the array (for each game), check if the JSON object is in the map.
+        // If it is, increment the value associated with that game.
+        // The value stored with the JSON object reflects how many players own that game.
+        String key;
+        Integer value;
+        JSONObject gameObject;
+        for (int i = 0; i < games.length(); i++) {
+            gameObject = games.optJSONObject(i);
+            key = gameObject.optString("name");
+            value = mGameMap.get(key);
+            if (value == null) {
+                mGameMap.put(key, 1);
+            } else {
+                mGameMap.put(key, value + 1);
+            }
+        }
+        mMapDone++;
+
+        // This is probably a terrible way of tracking when the multiple calls to mapGames are
+        // finished.
+        if (mMapDone == mPlayerCount) {
+            ArrayList<String> ownedByAll = new ArrayList<String>();
+            for (Map.Entry<String, Integer> entry : mGameMap.entrySet()) {
+                if (entry.getValue() == mPlayerCount) {
+                    ownedByAll.add(entry.getKey());
+                }
+            }
+
+            // At this point I should have a JSONArray object of only games that are owned
+            // by all players.
+            randomGame(ownedByAll);
+        }
+    }
+
     public void randomGame(JSONArray gameList) {
         Random random = new Random();
         int randNum = random.nextInt(gameList.length());
@@ -106,6 +148,14 @@ public class MainActivity extends AppCompatActivity {
 
         TextView txtDisplay = (TextView) findViewById(R.id.txtDisplay);
         txtDisplay.setText(myGame.optString("name"));
+    }
+
+    public void randomGame(ArrayList<String> gameList) {
+        Random random = new Random();
+        int randNum = random.nextInt(gameList.size());
+
+        TextView txtDisplay = (TextView) findViewById(R.id.txtDisplay);
+        txtDisplay.setText(gameList.get(randNum));
     }
 
     private void getSteamResponse(String url, final VolleyCallback callback) {
@@ -129,10 +179,6 @@ public class MainActivity extends AppCompatActivity {
                 });
         VolleySingleton.getInstance(this).addToRequestQueue(jsObjRequest);
 
-    }
-
-    private void setmJsonResponse(JSONObject object) {
-        this.mJsonResponse = object;
     }
 
     public interface VolleyCallback {

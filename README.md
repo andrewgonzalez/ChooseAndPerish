@@ -17,7 +17,7 @@ Got friends? Enter their vanity urls as well (up to four players) and a game all
 will be chosen.
 
 When entering your url, just enter the custom text you set in your profile, not the
-entire http://steamcommunity.com/id/<custom url>, just the custom url part.
+entire http://steamcommunity.com/id/custom url, just the custom url part.
 
 ### Requirements:
 Two things are required for each steam profile for this to work:

@@ -1,6 +1,7 @@
 # ChooseAndPerish
 
 Copyright (c) 2016 Andrew Gonzalez
+
 andrew.gonzal@gmail.com
 
 An android app that chooses a random game for you to play from your steam account.

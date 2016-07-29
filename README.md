@@ -19,7 +19,7 @@ will be chosen.
 When entering your url, just enter the custom url text you set in your profile, not the
 entire `http://steamcommunity.com/id/custom url`, just the custom url part.
 
-### Requirements:
+### Profile Requirements:
 Two things are required for each steam profile for this to work:
 + The players' steam profile be public (the api will only return a list of owned games
 from a public profile)

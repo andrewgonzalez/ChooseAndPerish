@@ -16,7 +16,7 @@ of games you own will appear and YOU MUST PLAY IT. The RNGods will be upset if y
 Got friends? Enter their vanity urls as well (up to four players) and a game all of you own
 will be chosen.
 
-When entering your url, just enter the custom text you set in your profile, not the
+When entering your url, just enter the custom url text you set in your profile, not the
 entire `http://steamcommunity.com/id/custom url`, just the custom url part.
 
 ### Requirements:

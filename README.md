@@ -44,7 +44,7 @@ direction I want the app to take.
 #### Short Term:
 
 I wrote this out after I'd had the project pretty well built (the app is working at least).
-So these are just things I'd like to work on immediately to make the app more feel more complete.
+So these are just things I'd like to work on immediately to make the app feel more complete.
 
 + Add a service so the app can run in the background
 + Only return multiplayer games when there are multiple players entered

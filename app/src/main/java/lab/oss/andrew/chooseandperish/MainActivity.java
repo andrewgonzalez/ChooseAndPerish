@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2016 Andrew Gonzalez
+ * This code is available under the "MIT License".
+ * Please see the file COPYING in this distribution for license terms.
+ */
+
 package lab.oss.andrew.chooseandperish;
 
 
@@ -11,6 +17,8 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -72,8 +80,8 @@ public class MainActivity extends AppCompatActivity {
                 getOwnedGames(steamID);
             }
             @Override
-            public void onFail(VolleyError e) {
-                e.printStackTrace();
+            public void onFail(VolleyError error) {
+                error.printStackTrace();
             }
         });
 
@@ -99,8 +107,29 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             @Override
-            public void onFail(VolleyError e) {
-                e.printStackTrace();
+            public void onFail(VolleyError error) {
+                error.printStackTrace();
+            }
+        });
+    }
+
+    // Fetches information about a players owned games from the steam store
+    public void getAppInfo(View view) {
+        String appID = "231430";
+        String url = "http://store.steampowered.com/api/appdetails"
+                + "?appids=" + appID;
+
+        getSteamResponse(url, new VolleyCallback() {
+            @Override
+            public void onSuccess(JSONObject result) {
+                JSONObject appInfo = result;
+                JSONObject data = appInfo.optJSONObject("data");
+                JSONArray categories = data.optJSONArray("categories");
+            }
+
+            @Override
+            public void onFail(VolleyError error) {
+                error.printStackTrace();
             }
         });
     }
@@ -164,21 +193,40 @@ public class MainActivity extends AppCompatActivity {
                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        try {
-                            callback.onSuccess(response.getJSONObject("response"));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+//                        try {
+//                            callback.onSuccess(response.getJSONObject("response"));
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+                        callback.onSuccess(response.optJSONObject("231430"));
                     }
                 }, new Response.ErrorListener() {
                     @Override
-                    public void onErrorResponse(VolleyError e) {
+                    public void onErrorResponse(VolleyError error) {
                         // Do something
-                        callback.onFail(e);
+                        callback.onFail(error);
                     }
                 });
         VolleySingleton.getInstance(this).addToRequestQueue(jsObjRequest);
 
+    }
+
+    private void getStoreResponse(String url, final VolleyCallback callback) {
+        StringRequest stringRequest = new StringRequest
+                (Request.Method.GET, url, new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        String test = response;
+                        //callback.onSuccess(response);
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // Do something
+                        callback.onFail(error);
+                    }
+                });
+        VolleySingleton.getInstance(this).addToRequestQueue(stringRequest);
     }
 
     public interface VolleyCallback {

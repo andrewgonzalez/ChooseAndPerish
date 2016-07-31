@@ -17,8 +17,6 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,22 +29,24 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity {
 
     private final int INITIAL_CAPACITY = 200;
-    private Map<String, Integer> mGameMap;
+    private Map<Integer, Integer> mGameMap;
     private int mMapDone;
     private int mPlayerCount;
+    private int mAppCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mGameMap = new HashMap<String, Integer>(INITIAL_CAPACITY);
+        mGameMap = new HashMap<Integer, Integer>(INITIAL_CAPACITY);
 
     }
 
     public void startWork(View view) {
         mGameMap.clear();
         mPlayerCount = 0;
+        mAppCount = 0;
         mMapDone = 0;
 
         RelativeLayout layout = (RelativeLayout) findViewById(R.id.mainLayout);
@@ -76,7 +76,8 @@ public class MainActivity extends AppCompatActivity {
         getSteamResponse(url, new VolleyCallback() {
             @Override
             public void onSuccess(JSONObject result) {
-                String steamID = result.optString("steamid");
+                JSONObject response = result.optJSONObject("response");
+                String steamID = response.optString("steamid");
                 getOwnedGames(steamID);
             }
             @Override
@@ -97,36 +98,15 @@ public class MainActivity extends AppCompatActivity {
         getSteamResponse(url, new VolleyCallback() {
             @Override
             public void onSuccess(JSONObject result) {
-                //mJsonArray = result.optJSONArray("games");
+                JSONObject response = result.optJSONObject("response");
                 if (mPlayerCount > 1) {
                     // call method to map all players' games to a HashMap
-                    mapGames(result.optJSONArray("games"));
+                    mapGames(response.optJSONArray("games"));
                 } else {
                     // there is only 1 player, just choose a random game
-                    randomGame(result.optJSONArray("games"));
+                    randomGame(response.optJSONArray("games"));
                 }
             }
-            @Override
-            public void onFail(VolleyError error) {
-                error.printStackTrace();
-            }
-        });
-    }
-
-    // Fetches information about a players owned games from the steam store
-    public void getAppInfo(View view) {
-        String appID = "231430";
-        String url = "http://store.steampowered.com/api/appdetails"
-                + "?appids=" + appID;
-
-        getSteamResponse(url, new VolleyCallback() {
-            @Override
-            public void onSuccess(JSONObject result) {
-                JSONObject appInfo = result;
-                JSONObject data = appInfo.optJSONObject("data");
-                JSONArray categories = data.optJSONArray("categories");
-            }
-
             @Override
             public void onFail(VolleyError error) {
                 error.printStackTrace();
@@ -138,12 +118,12 @@ public class MainActivity extends AppCompatActivity {
         // For each entry in the array (for each game), check if the JSON object is in the map.
         // If it is, increment the value associated with that game.
         // The value stored with the JSON object reflects how many players own that game.
-        String key;
+        Integer key;
         Integer value;
         JSONObject gameObject;
         for (int i = 0; i < games.length(); i++) {
             gameObject = games.optJSONObject(i);
-            key = gameObject.optString("name");
+            key = gameObject.optInt("appid");
             value = mGameMap.get(key);
             if (value == null) {
                 mGameMap.put(key, 1);
@@ -156,16 +136,71 @@ public class MainActivity extends AppCompatActivity {
         // This is probably a terrible way of tracking when the multiple calls to mapGames are
         // finished.
         if (mMapDone == mPlayerCount) {
-            ArrayList<String> ownedByAll = new ArrayList<String>();
-            for (Map.Entry<String, Integer> entry : mGameMap.entrySet()) {
+            ArrayList<Integer> ownedByAll = new ArrayList<Integer>();
+            for (Map.Entry<Integer, Integer> entry : mGameMap.entrySet()) {
                 if (entry.getValue() == mPlayerCount) {
                     ownedByAll.add(entry.getKey());
                 }
             }
 
-            // At this point I should have a JSONArray object of only games that are owned
+            // At this point I should have a list of only games that are owned
             // by all players.
-            randomGame(ownedByAll);
+            //randomGame(ownedByAll);
+            getAppInfo(ownedByAll);
+        }
+    }
+
+    // Fetches information about a game from the steam store.
+    // I'm looking for the categories to find games that have the multi-player
+    // and co-op tags.
+    public void getAppInfo(final ArrayList<Integer> appIDList) {
+        final ArrayList<String> multiplayerGames = new ArrayList<String>();
+
+        for (final Integer appID : appIDList) {
+            String url = "http://store.steampowered.com/api/appdetails"
+                    + "?appids=" + appID.toString();
+
+            getSteamResponse(url, new VolleyCallback() {
+                @Override
+                public void onSuccess(JSONObject result) {
+                    JSONObject appInfo = result.optJSONObject(appID.toString());
+                    try {
+                        // The json response will have key:value pair indicating success as true
+                        // or false. It's possible that a store listing for an appid doesn't
+                        // exist, but both players may still own the game.
+                        if (appInfo.getBoolean("success")) {
+                            JSONObject data = appInfo.getJSONObject("data");
+                            String name = data.getString("name");
+                            JSONArray categories = data.getJSONArray("categories");
+                            for (int i = 0; i < categories.length(); i++) {
+                                // Category IDs 1 and 9 are Multi-player and Co-op respectively.
+                                // This loop will grab only games that have those IDs.
+                                JSONObject category = categories.getJSONObject(i);
+                                if (category.getInt("id") == 1 || category.getInt("id") == 9) {
+                                    multiplayerGames.add(name);
+                                    // Break out of the loop so the game is added multiple times
+                                    // for having both categories.
+                                    break;
+                                }
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    mAppCount++;
+                    if (mAppCount == appIDList.size()) {
+                        // All the multiplayer/co-op games have been added to multiplayerGames
+                        // list. Send it off for random game selection.
+                        randomGame(multiplayerGames);
+                    }
+                }
+
+                @Override
+                public void onFail(VolleyError error) {
+                    error.printStackTrace();
+                }
+            });
         }
     }
 
@@ -193,12 +228,7 @@ public class MainActivity extends AppCompatActivity {
                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-//                        try {
-//                            callback.onSuccess(response.getJSONObject("response"));
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                        }
-                        callback.onSuccess(response.optJSONObject("231430"));
+                        callback.onSuccess(response);
                     }
                 }, new Response.ErrorListener() {
                     @Override
@@ -209,24 +239,6 @@ public class MainActivity extends AppCompatActivity {
                 });
         VolleySingleton.getInstance(this).addToRequestQueue(jsObjRequest);
 
-    }
-
-    private void getStoreResponse(String url, final VolleyCallback callback) {
-        StringRequest stringRequest = new StringRequest
-                (Request.Method.GET, url, new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        String test = response;
-                        //callback.onSuccess(response);
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // Do something
-                        callback.onFail(error);
-                    }
-                });
-        VolleySingleton.getInstance(this).addToRequestQueue(stringRequest);
     }
 
     public interface VolleyCallback {

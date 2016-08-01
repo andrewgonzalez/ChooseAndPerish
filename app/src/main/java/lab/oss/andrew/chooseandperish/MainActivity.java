@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void resolveUrl(String vanityUrl) {
+    private void resolveUrl(final String vanityUrl) {
         String url = "https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/"
                 + "?key=removed"
                 + "&vanityurl=" + vanityUrl
@@ -77,8 +77,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSuccess(JSONObject result) {
                 JSONObject response = result.optJSONObject("response");
-                String steamID = response.optString("steamid");
-                getOwnedGames(steamID);
+                try {
+                    if (response.getInt("success") == 1) {
+                        String steamID = response.optString("steamid");
+                        getOwnedGames(steamID);
+                    } else {
+                        informUser("Unsuccessful response for " + vanityUrl
+                                + ". Could be a typo or their profile is not public.");
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
             @Override
             public void onFail(VolleyError error) {
@@ -88,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void getOwnedGames(String steamID) {
+    private void getOwnedGames(String steamID) {
         String url = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/"
                 + "?key=removed"
                 + "&steamid=" + steamID
@@ -98,13 +107,17 @@ public class MainActivity extends AppCompatActivity {
         getSteamResponse(url, new VolleyCallback() {
             @Override
             public void onSuccess(JSONObject result) {
-                JSONObject response = result.optJSONObject("response");
-                if (mPlayerCount > 1) {
-                    // call method to map all players' games to a HashMap
-                    mapGames(response.optJSONArray("games"));
-                } else {
-                    // there is only 1 player, just choose a random game
-                    randomGame(response.optJSONArray("games"));
+                try {
+                    JSONObject response = result.getJSONObject("response");
+                    if (mPlayerCount > 1) {
+                        // call method to map all players' games to a HashMap
+                        mapGames(response.getJSONArray("games"));
+                    } else {
+                        // there is only 1 player, just choose a random game
+                        randomGame(response.getJSONArray("games"));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             }
             @Override
@@ -114,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void mapGames(JSONArray games) {
+    private void mapGames(JSONArray games) {
         // For each entry in the array (for each game), check if the JSON object is in the map.
         // If it is, increment the value associated with that game.
         // The value stored with the JSON object reflects how many players own that game.
@@ -122,14 +135,19 @@ public class MainActivity extends AppCompatActivity {
         Integer value;
         JSONObject gameObject;
         for (int i = 0; i < games.length(); i++) {
-            gameObject = games.optJSONObject(i);
-            key = gameObject.optInt("appid");
-            value = mGameMap.get(key);
-            if (value == null) {
-                mGameMap.put(key, 1);
-            } else {
-                mGameMap.put(key, value + 1);
+            try {
+                gameObject = games.getJSONObject(i);
+                key = gameObject.getInt("appid");
+                value = mGameMap.get(key);
+                if (value == null) {
+                    mGameMap.put(key, 1);
+                } else {
+                    mGameMap.put(key, value + 1);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
+
         }
         mMapDone++;
 
@@ -144,16 +162,19 @@ public class MainActivity extends AppCompatActivity {
             }
 
             // At this point I should have a list of only games that are owned
-            // by all players.
-            //randomGame(ownedByAll);
-            getAppInfo(ownedByAll);
+            // by all players. It's possible that not all players will have games in common.
+            if (ownedByAll.size() == 0) {
+                informUser("Can this be? Not all players have a game in common!");
+            } else {
+                getAppInfo(ownedByAll);
+            }
         }
     }
 
     // Fetches information about a game from the steam store.
     // I'm looking for the categories to find games that have the multi-player
     // and co-op tags.
-    public void getAppInfo(final ArrayList<Integer> appIDList) {
+    private void getAppInfo(final ArrayList<Integer> appIDList) {
         final ArrayList<String> multiplayerGames = new ArrayList<String>();
 
         for (final Integer appID : appIDList) {
@@ -204,22 +225,32 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void randomGame(JSONArray gameList) {
+    private void randomGame(JSONArray gameList) {
         Random random = new Random();
         int randNum = random.nextInt(gameList.length());
 
-        JSONObject myGame = gameList.optJSONObject(randNum);
+        JSONObject myGame = null;
+        try {
+            myGame = gameList.getJSONObject(randNum);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         TextView txtDisplay = (TextView) findViewById(R.id.txtDisplay);
         txtDisplay.setText(myGame.optString("name"));
     }
 
-    public void randomGame(ArrayList<String> gameList) {
+    private void randomGame(ArrayList<String> gameList) {
         Random random = new Random();
         int randNum = random.nextInt(gameList.size());
 
         TextView txtDisplay = (TextView) findViewById(R.id.txtDisplay);
         txtDisplay.setText(gameList.get(randNum));
+    }
+
+    private void informUser(String message) {
+        TextView txtDisplay = (TextView) findViewById(R.id.txtDisplay);
+        txtDisplay.setText(message);
     }
 
     private void getSteamResponse(String url, final VolleyCallback callback) {

@@ -15,11 +15,11 @@ The volley code can be found here: (https://android.googlesource.com/platform/fr
 Enter the vanity url for your steam profile and press Play! A random game from a list
 of games you own will appear and YOU MUST PLAY IT. The RNGods will be upset if you don't.
 
-Got friends? Enter their vanity urls as well (up to four players) and a game all of you own
-will be chosen.
+Got friends? Enter their vanity urls as well (up to four players) and a multiplayer game all
+of you own will be chosen.
 
 When entering your url, just enter the custom url text you set in your profile, not the
-entire `http://steamcommunity.com/id/custom url`, just the custom url part.
+entire `http://steamcommunity.com/id/custom url`, just the `custom url` part.
 
 ### Profile Requirements:
 Two things are required for each steam profile for this to work:
@@ -47,7 +47,7 @@ I wrote this out after I'd had the project pretty well built (the app is working
 So these are just things I'd like to work on immediately to make the app feel more complete.
 
 + Add a service so the app can run in the background
-+ Only return multiplayer games when there are multiple players entered
++ ~Only return multiplayer games when there are multiple players entered~
 + Make the UI prettier
 
 #### Stretch Goals:

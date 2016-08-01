@@ -212,8 +212,13 @@ public class MainActivity extends AppCompatActivity {
                     mAppCount++;
                     if (mAppCount == appIDList.size()) {
                         // All the multiplayer/co-op games have been added to multiplayerGames
-                        // list. Send it off for random game selection.
-                        randomGame(multiplayerGames);
+                        // list. Send it off for random game selection. It is possible that every
+                        // player won't have a multiplayer game in common.
+                        if (multiplayerGames.size() != 0) {
+                            randomGame(multiplayerGames);
+                        } else {
+                            informUser("You have games in common, but none of them are multiplayer!");
+                        }
                     }
                 }
 
@@ -236,16 +241,18 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        TextView txtDisplay = (TextView) findViewById(R.id.txtDisplay);
-        txtDisplay.setText(myGame.optString("name"));
+        if (myGame != null) {
+            informUser(myGame.optString("name"));
+        } else {
+            informUser("Encountered a null element during random game selection.");
+        }
     }
 
     private void randomGame(ArrayList<String> gameList) {
         Random random = new Random();
         int randNum = random.nextInt(gameList.size());
 
-        TextView txtDisplay = (TextView) findViewById(R.id.txtDisplay);
-        txtDisplay.setText(gameList.get(randNum));
+        informUser(gameList.get(randNum));
     }
 
     private void informUser(String message) {

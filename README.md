@@ -47,7 +47,7 @@ I wrote this out after I'd had the project pretty well built (the app is working
 So these are just things I'd like to work on immediately to make the app feel more complete.
 
 + Add a service so the app can run in the background
-+ ~~Only return multiplayer games when there are multiple players entered~~
++ ~~Only return multiplayer games when there are multiple players entered~~  Done
 + Make the UI prettier
 
 #### Stretch Goals:

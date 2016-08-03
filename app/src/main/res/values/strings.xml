@@ -2,4 +2,13 @@
     <string name="app_name">ChooseAndPerish</string>
     <string name="vanity_url_edit">Enter your vanity url</string>
     <string name="button_send">Play!</string>
+    <string name="start_work">Let\'s do this!</string>
+    <string name="resolve_url_success">Got an ID for %1$s</string>
+    <string name="resolve_url_fail">Unsuccessful response for %1$s. Could be a typo or their profile is not public.</string>
+    <string name="get_games">Getting games...</string>
+    <string name="mapping_games">Mapping games...</string>
+    <string name="no_common_games">Can this be? Not all players have a game in common!</string>
+    <string name="find_multiplayer">Finding all the multiplayer games...</string>
+    <string name="no_multiplayer">You have games in common, but none of them are multiplayer!</string>
+    <string name="random_null">Encountered a null element during random game selection.</string>
 </resources>

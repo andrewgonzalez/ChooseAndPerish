@@ -53,3 +53,4 @@ So these are just things I'd like to work on immediately to make the app feel mo
 #### Stretch Goals:
 + Put it on the Google Play store as a free app?
 + Cache lists of owned games for repeat requests
++ Improve memory performance (getting quite a few gc\_for\_alloc during all the store calls)

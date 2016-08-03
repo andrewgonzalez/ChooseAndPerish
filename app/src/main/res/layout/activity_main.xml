@@ -45,5 +45,12 @@
         android:id="@+id/txtDisplay"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:text="Hello World!" />
+        android:text="" />
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/txtDisplay"
+        android:layout_centerHorizontal="true"
+        android:visibility="invisible"
+        android:id="@+id/progress_bar" />
 </RelativeLayout>

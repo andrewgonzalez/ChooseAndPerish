@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar mProgressBar;
     private final int INITIAL_CAPACITY = 200;
     // Please replace this key with your own!
-    private final String key = "2E2F2BEA53C917775B3AEA7548391CC3";
+    private final String key = ApiKey.API_KEY;
     private Map<Integer, Integer> mGameMap;
     private int mMapDone;
     private int mPlayerCount;

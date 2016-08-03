@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.android.volley.Request;
@@ -28,7 +29,10 @@ import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
+    private ProgressBar mProgressBar;
     private final int INITIAL_CAPACITY = 200;
+    // Please replace this key with your own!
+    private final String key = "removed";
     private Map<Integer, Integer> mGameMap;
     private int mMapDone;
     private int mPlayerCount;
@@ -39,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mGameMap = new HashMap<Integer, Integer>(INITIAL_CAPACITY);
 
     }
@@ -48,6 +53,9 @@ public class MainActivity extends AppCompatActivity {
         mPlayerCount = 0;
         mAppCount = 0;
         mMapDone = 0;
+
+        informUser(getString(R.string.start_work));
+        mProgressBar.setVisibility(View.VISIBLE);
 
         RelativeLayout layout = (RelativeLayout) findViewById(R.id.mainLayout);
         EditText urlEdit;
@@ -69,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void resolveUrl(final String vanityUrl) {
         String url = "https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/"
-                + "?key=removed"
+                + "?key=" + key
                 + "&vanityurl=" + vanityUrl
                 + "&url_type=1";
 
@@ -79,11 +87,13 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject response = result.optJSONObject("response");
                 try {
                     if (response.getInt("success") == 1) {
-                        String steamID = response.optString("steamid");
+                        String progressText = String.format(getString(R.string.resolve_url_success), vanityUrl);
+                        informUser(progressText);
+                        String steamID = response.getString("steamid");
                         getOwnedGames(steamID);
                     } else {
-                        informUser("Unsuccessful response for " + vanityUrl
-                                + ". Could be a typo or their profile is not public.");
+                        String progressText = String.format(getString(R.string.resolve_url_fail), vanityUrl);
+                        informUser(progressText, true);
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -99,11 +109,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void getOwnedGames(String steamID) {
         String url = "https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/"
-                + "?key=removed"
+                + "?key=" + key
                 + "&steamid=" + steamID
                 + "&include_appinfo=1"
                 + "&format=json";
 
+        informUser(getString(R.string.get_games));
         getSteamResponse(url, new VolleyCallback() {
             @Override
             public void onSuccess(JSONObject result) {
@@ -134,6 +145,9 @@ public class MainActivity extends AppCompatActivity {
         Integer key;
         Integer value;
         JSONObject gameObject;
+
+        informUser(getString(R.string.mapping_games));
+
         for (int i = 0; i < games.length(); i++) {
             try {
                 gameObject = games.getJSONObject(i);
@@ -164,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
             // At this point I should have a list of only games that are owned
             // by all players. It's possible that not all players will have games in common.
             if (ownedByAll.size() == 0) {
-                informUser("Can this be? Not all players have a game in common!");
+                informUser(getString(R.string.no_common_games), true);
             } else {
                 getAppInfo(ownedByAll);
             }
@@ -176,6 +190,8 @@ public class MainActivity extends AppCompatActivity {
     // and co-op tags.
     private void getAppInfo(final ArrayList<Integer> appIDList) {
         final ArrayList<String> multiplayerGames = new ArrayList<String>();
+
+        informUser(getString(R.string.find_multiplayer));
 
         for (final Integer appID : appIDList) {
             String url = "http://store.steampowered.com/api/appdetails"
@@ -217,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
                         if (multiplayerGames.size() != 0) {
                             randomGame(multiplayerGames);
                         } else {
-                            informUser("You have games in common, but none of them are multiplayer!");
+                            informUser(getString(R.string.no_multiplayer), true);
                         }
                     }
                 }
@@ -234,6 +250,8 @@ public class MainActivity extends AppCompatActivity {
         Random random = new Random();
         int randNum = random.nextInt(gameList.length());
 
+        mProgressBar.setVisibility(View.INVISIBLE);
+
         JSONObject myGame = null;
         try {
             myGame = gameList.getJSONObject(randNum);
@@ -244,7 +262,7 @@ public class MainActivity extends AppCompatActivity {
         if (myGame != null) {
             informUser(myGame.optString("name"));
         } else {
-            informUser("Encountered a null element during random game selection.");
+            informUser(getString(R.string.random_null), true);
         }
     }
 
@@ -252,12 +270,22 @@ public class MainActivity extends AppCompatActivity {
         Random random = new Random();
         int randNum = random.nextInt(gameList.size());
 
+        mProgressBar.setVisibility(View.INVISIBLE);
         informUser(gameList.get(randNum));
     }
 
     private void informUser(String message) {
         TextView txtDisplay = (TextView) findViewById(R.id.txtDisplay);
         txtDisplay.setText(message);
+    }
+
+    private void informUser(String message, boolean error) {
+        TextView txtDisplay = (TextView) findViewById(R.id.txtDisplay);
+        txtDisplay.setText(message);
+
+        if (error) {
+            mProgressBar.setVisibility(View.INVISIBLE);
+        }
     }
 
     private void getSteamResponse(String url, final VolleyCallback callback) {

@@ -51,6 +51,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/txtDisplay"
         android:layout_centerHorizontal="true"
+        android:paddingTop="5dp"
         android:visibility="invisible"
         android:id="@+id/progress_bar" />
 </RelativeLayout>

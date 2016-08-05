@@ -31,12 +31,17 @@ public class MainActivity extends AppCompatActivity {
 
     private ProgressBar mProgressBar;
     private final int INITIAL_CAPACITY = 200;
-    // Please replace this key with your own!
     private final String key = ApiKey.API_KEY;
     private Map<Integer, Integer> mGameMap;
     private int mMapDone;
     private int mPlayerCount;
     private int mAppCount;
+
+    // Variables for saving the app state
+    static final String MAP_DONE = "mapDone";
+    static final String PLAYER_COUNT = "playerCount";
+    static final String APP_COUNT = "appCount";
+    static final String TXT_DISPLAY = "txtDisplay";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +51,24 @@ public class MainActivity extends AppCompatActivity {
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
         mGameMap = new HashMap<Integer, Integer>(INITIAL_CAPACITY);
 
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        // Restore saved state members
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle savedInstanceState) {
+        // Save the current state
+        savedInstanceState.putInt(MAP_DONE, mMapDone);
+        savedInstanceState.putInt(PLAYER_COUNT, mPlayerCount);
+        savedInstanceState.putInt(APP_COUNT, mAppCount);
+        savedInstanceState.putString(TXT_DISPLAY, findViewById(R.id.txtDisplay).toString());
+
+        super.onSaveInstanceState(savedInstanceState);
     }
 
     public void startWork(View view) {

@@ -11,9 +11,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 
-/**
- * Created by andreg2 on 7/19/16.
- */
+
 public class VolleySingleton {
     private static VolleySingleton ourInstance;
     private RequestQueue mRequestQueue;

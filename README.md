@@ -3,6 +3,7 @@
 Copyright (c) 2016 Andrew Gonzalez
 
 This code is available under the "MIT License". See the COPYING file in this distribution for license terms.
+
 ******
 
 
@@ -34,6 +35,39 @@ you like (so long as it isn't taken) from your steam profile.
 
 To set it, log in to steam and navigate to Edit Profile. There you should see a
 listing for 'Custom URL' with a textbox. Enter whatever you like!
+
+******
+
+## Build Instructions
+
+If you want to put this app on your phone you will need to put the phone into developer mode,
+and also may need to allow apps from untrusted sources to run. See your phone's instructions
+on how to do that, as it varies by Android version.
+
+To deploy this project to a phone you can do one of two things:
+
+### Clone and Build
+
+You'll need an api key from Steam. You can acquire one [here](https://steamcommunity.com/dev).
+To acquire an api key you may need to create a Steam account, if you don't already have one.
+
+This project was built using Android Studio, so I'm assuming you're using that as well. If not,
+please follow the build instructions for your IDE.
+
+First, clone this repository:
+
+`https://github.com/andrewgonzalez/ChooseAndPerish.git`
+
+Open the project in Android Studio, and locate the ApiKey.java file. Enter your api key
+for the API_KEY variable.
+
+Build the project, then run it on your device (whether that be an Android Virtual Device
+or a phone attached via usb). That's it!
+
+### Download the .apk
+
+To Do: Fill this in
+
 ******
 
 ## Project Goals

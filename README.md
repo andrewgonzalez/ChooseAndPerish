@@ -54,7 +54,7 @@ please follow the build instructions for your IDE.
 
 First, clone this repository:
 
-`https://github.com/andrewgonzalez/ChooseAndPerish.git`
+`git clone https://github.com/andrewgonzalez/ChooseAndPerish.git`
 
 Open the project in Android Studio, and locate the ApiKey.java file. Enter your api key
 for the API_KEY variable.

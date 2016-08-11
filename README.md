@@ -44,8 +44,6 @@ If you want to put this app on your phone you will need to put the phone into de
 and also may need to allow apps from untrusted sources to run. See your phone's instructions
 on how to do that, as it varies by Android version.
 
-To deploy this project to a phone you can do one of two things:
-
 ### Clone and Build
 
 You'll need an api key from Steam. You can acquire one [here](https://steamcommunity.com/dev).
@@ -63,10 +61,6 @@ for the API_KEY variable.
 
 Build the project, then run it on your device (whether that be an Android Virtual Device
 or a phone attached via usb). That's it!
-
-### Download the .apk
-
-To Do: Fill this in
 
 ******
 
